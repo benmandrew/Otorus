@@ -1,3 +1,4 @@
+
 open Vec3
 open Quartic
 
@@ -20,28 +21,28 @@ let generate_quartic r t =
   let open Quartic in
   {a; b; c; d; e}
 
-let find_intersection r t =
-  let q = generate_quartic r t in
-  let roots = DurandKerner.get_real_roots q in
-  let dist = List.filter (fun x -> x > epsilon) roots |> List.fold_left min infinity in
-  dist
-
 let point_along_ray r d =
   let x = r.o.x +. r.d.x *. d in
   let y = r.o.y +. r.d.y *. d in
   let z = r.o.z +. r.d.z *. d in
   {x; y; z}
 
+let find_intersection r t =
+  let q = generate_quartic r t in
+  let roots = DurandKerner.get_real_roots q in
+  let dist = List.filter (fun x -> x > epsilon) roots |> List.fold_left min infinity in
+  if Float.is_infinite dist then
+    None
+  else
+    Some (point_along_ray r dist)
 
+let string_of_ray r =
+  let open Core in
+  Sexp.to_string (Sexp.List [
+    Sexp.Atom (string_of_vec3 r.o);
+    Sexp.Atom (string_of_vec3 r.d)])
 
-
-
-
-
-
-
-(* let ray_torus_intersection (r : ray_t) (t : torus_t) =
-  true *)
+let print_ray r = print_string (string_of_ray r)
 
 
 
