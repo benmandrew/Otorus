@@ -1,3 +1,5 @@
+open Linalg
+
 let epsilon = 0.001
 
 module Quartic = struct
@@ -19,7 +21,7 @@ module Quartic = struct
 end
 
 module DurandKerner = struct
-  type roots_t = { p : Complex.t; q : Complex.t; r : Complex.t; s : Complex.t }
+  type t = { p : Complex.t; q : Complex.t; r : Complex.t; s : Complex.t }
 
   let complex_diff_epsilon c1 c2 epsilon =
     Complex.norm2 (Complex.sub c1 c2) < epsilon
@@ -30,7 +32,7 @@ module DurandKerner = struct
     && complex_diff_epsilon rts1.r rts2.r epsilon
     && complex_diff_epsilon rts1.s rts2.s epsilon
 
-  let iterate (poly : Quartic.t) (rts : roots_t) =
+  let iterate (poly : Quartic.t) (rts : t) =
     let open Complex in
     let p =
       sub rts.p
@@ -60,7 +62,7 @@ module DurandKerner = struct
     in
     { p; q; r; s }
 
-  let rec find_roots_aux (poly : Quartic.t) (rts : roots_t) =
+  let rec find_roots_aux (poly : Quartic.t) (rts : t) =
     let rts' = iterate poly rts in
     if roots_diff_epsilon rts rts' epsilon then rts'
     else find_roots_aux poly rts'
@@ -80,3 +82,40 @@ module DurandKerner = struct
     let l' = List.filter (fun (c : Complex.t) -> abs_float c.im < epsilon) l in
     List.map (fun (c : Complex.t) -> c.re) l'
 end
+
+type t = { maj_r : float; min_r : float }
+
+(* http://blog.marcinchwedczuk.pl/ray-tracing-torus *)
+let generate_quartic (r : Ray.t) t : Quartic.t =
+  let a_sqrt = (r.d.x *. r.d.x) +. (r.d.y *. r.d.y) +. (r.d.z *. r.d.z) in
+  let od = (r.o.x *. r.d.x) +. (r.o.y *. r.d.y) +. (r.o.z *. r.d.z) in
+  let orr =
+    (r.o.x *. r.o.x) +. (r.o.y *. r.o.y) +. (r.o.z *. r.o.z)
+    -. ((t.min_r *. t.min_r) +. (t.maj_r *. t.maj_r))
+  in
+  let a = a_sqrt *. a_sqrt in
+  let b = 4. *. a_sqrt *. od in
+  let c =
+    (2. *. a_sqrt *. orr)
+    +. (4. *. od *. od)
+    +. (4. *. t.maj_r *. t.maj_r *. r.d.y *. r.d.y)
+  in
+  let d = (4. *. orr *. od) +. (8. *. t.maj_r *. t.maj_r *. r.o.y *. r.d.y) in
+  let e =
+    (orr *. orr)
+    -. (4. *. t.maj_r *. t.maj_r *. ((t.min_r *. t.min_r) -. (r.o.y *. r.o.y)))
+  in
+  { a; b; c; d; e }
+
+let intersection t r =
+  let q = generate_quartic r t in
+  let roots = DurandKerner.get_real_roots q in
+  let dist =
+    List.filter (fun x -> x > epsilon) roots |> List.fold_left min infinity
+  in
+  if Float.is_infinite dist then None else Some (Ray.point_along r dist)
+
+let normal t (p : Vec3.t) =
+  let open Vec3 in
+  let p_on_circle = t.maj_r * normalised { x = p.x; y = 0.0; z = p.z } in
+  normalised (p - p_on_circle)

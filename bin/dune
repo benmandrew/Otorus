@@ -1,4 +1,4 @@
 (executable
  (public_name otorus)
  (name main)
- (libraries torus graphics))
+ (libraries otorus graphics))

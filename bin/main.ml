@@ -1,13 +1,15 @@
-open Torus
+open Otorus
+open Otorus.Torus
+open Otorus.Linalg
 
 let width = 960
 let height = 640
 let field_of_view = 90.0
-let torus : Intersection.torus_t = { maj_r = 5.0; min_r = 1.0 }
+let torus : Torus.t = { maj_r = 5.0; min_r = 1.0 }
 let bg_value = 120
 
-let rot_mat : Vec3.mat3_t =
-  Vec3.rot_from_euler (Float.pi /. 4.0) (Float.pi /. 4.0) (Float.pi /. 4.0)
+let rot_mat : Mat3.t =
+  Mat3.rot_from_euler (Float.pi /. 4.0) (Float.pi /. 4.0) (Float.pi /. 4.0)
 
 let exit_handler (status : Graphics.status) =
   if status.keypressed && status.key == ' ' then raise Exit else ()
