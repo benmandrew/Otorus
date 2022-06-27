@@ -3,9 +3,10 @@ open Torus.Vec3 *)
 
 open Torus
 
-let width = 640
-let height = 480
-let torus : Intersection.torus_t = {maj_r = 50.0; min_r = 13.0}
+let width = 960
+let height = 640
+let torus : Intersection.torus_t = {maj_r = 5.0; min_r = 1.0}
+let rot_mat : Vec3.mat3_t = Vec3.rot_from_euler (Float.pi /. 4.0) (Float.pi /. 4.0) (Float.pi /. 4.0)
 
 (* open Graphics *)
 
@@ -16,24 +17,17 @@ let exit_handler (status : Graphics.status) =
 let init_window () =
   Graphics.open_graph "";
   Graphics.resize_window width height;
-  Graphics.set_color Graphics.black;
+  Graphics.set_color (Graphics.rgb 220 220 220);
   Graphics.fill_rect 0 0 width height
 
 let () =
   init_window ();
   for y = 0 to height do
-    (* let ry = y - height / 2 in *)
     for x = 0 to width do
-      (* let rx = x - width / 2 in *)
       Graphics.moveto x y;
-      let ray = Render.compute_ray x y width height 60.0 in
-      Intersection.print_ray ray;
-      print_newline ();
+      let ray = Render.compute_ray x y width height 90.0 rot_mat in
       match Render.render_ray ray torus with
-      | None -> begin
-        Graphics.set_color Graphics.green;
-        Graphics.plot x y
-      end
+      | None -> ()
       | Some c -> begin
         Graphics.set_color c;
         Graphics.plot x y
