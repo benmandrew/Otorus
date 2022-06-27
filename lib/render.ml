@@ -21,14 +21,29 @@ let compute_normal p t =
   in
   normalised (vec_sub p p_on_circle)
 
+let smooth_clamp v =
+  { x = v.x /. (v.x +. 0.5); y = v.y /. (v.y +. 0.5); z = v.z /. (v.z +. 0.5) }
+
+let vec3_to_colour v =
+  let c = smooth_clamp v in
+  Graphics.rgb
+    (int_of_float (255.0 *. c.x))
+    (int_of_float (255.0 *. c.y))
+    (int_of_float (255.0 *. c.z))
+
 let brdf n =
   let value =
     (vec_dot n (normalised { x = -1.0; y = 1.0; z = 1.0 }) /. 2.0) +. 0.5
   in
-  Graphics.rgb
-    (int_of_float (255.0 *. value))
-    (int_of_float (255.0 *. Float.pow value 100.0))
-    (int_of_float (255.0 *. Float.pow value 100.0))
+  let albedo = { x = Float.pow value 2.0; y = 0.0; z = 0.0 } in
+  let specular =
+    {
+      x = Float.pow value 100.0;
+      y = Float.pow value 100.0;
+      z = Float.pow value 100.0;
+    }
+  in
+  vec3_to_colour (vec_add albedo specular)
 
 let render_ray r t =
   match find_intersection r t with
