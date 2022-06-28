@@ -83,7 +83,30 @@ module DurandKerner = struct
     List.map (fun (c : Complex.t) -> c.re) l'
 end
 
-type t = { maj_r : float; min_r : float }
+module Sphere = struct
+  type t = { o : Vec3.t; r : float }
+
+  (* http://kylehalladay.com/blog/tutorial/math/2013/12/24/Ray-Sphere-Intersection.html
+     Warning: Code sample in source has errors *)
+  let intersection s (r : Ray.t) =
+    let open Vec3 in
+    let l = s.o - r.o in
+    let tc = dot l r.d in
+    if tc < 0.0 then false
+    else
+      let d2 = magnitude2 l -. (tc *. tc) in
+      let r2 = s.r *. s.r in
+      if d2 > r2 then false else true
+end
+
+type t = { maj_r : float; min_r : float; bound_s : Sphere.t }
+
+let create maj_r min_r =
+  let open Vec3 in
+  let bound_s : Sphere.t =
+    { o = { x = 0.0; y = 0.0; z = 0.0 }; r = maj_r +. min_r }
+  in
+  { maj_r; min_r; bound_s }
 
 (* http://blog.marcinchwedczuk.pl/ray-tracing-torus *)
 let generate_quartic (r : Ray.t) t : Quartic.t =
@@ -108,12 +131,14 @@ let generate_quartic (r : Ray.t) t : Quartic.t =
   { a; b; c; d; e }
 
 let intersection t r =
-  let q = generate_quartic r t in
-  let roots = DurandKerner.get_real_roots q in
-  let dist =
-    List.filter (fun x -> x > epsilon) roots |> List.fold_left min infinity
-  in
-  if Float.is_infinite dist then None else Some (Ray.point_along r dist)
+  if not (Sphere.intersection t.bound_s r) then None
+  else
+    let q = generate_quartic r t in
+    let roots = DurandKerner.get_real_roots q in
+    let dist =
+      List.filter (fun x -> x > epsilon) roots |> List.fold_left min infinity
+    in
+    if Float.is_infinite dist then None else Some (Ray.point_along r dist)
 
 let normal t (p : Vec3.t) =
   let open Vec3 in

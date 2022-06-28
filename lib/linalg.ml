@@ -1,3 +1,5 @@
+open Core
+
 module Vec3 = struct
   type t = { x : float; y : float; z : float }
 
@@ -19,8 +21,9 @@ module Vec3 = struct
     let z = v *. a.z in
     { x; y; z }
 
-  let dot v0 v1 = (v0.x *. v1.x) +. (v0.y *. v1.y) +. (v0.z *. v1.z)
-  let magnitude v = Float.sqrt ((v.x *. v.x) +. (v.y *. v.y) +. (v.z *. v.z))
+  let dot a b = (a.x *. b.x) +. (a.y *. b.y) +. (a.z *. b.z)
+  let magnitude2 v = (v.x *. v.x) +. (v.y *. v.y) +. (v.z *. v.z)
+  let magnitude v = Float.sqrt (magnitude2 v)
   let normalised v = 1.0 /. magnitude v * v
 end
 
@@ -37,7 +40,7 @@ module Mat3 = struct
     z2 : float;
   }
 
-  let ( ** ) a b =
+  let ( *** ) a b =
     {
       x0 = (a.x0 *. b.x0) +. (a.y0 *. b.x1) +. (a.z0 *. b.x2);
       x1 = (a.x1 *. b.x0) +. (a.y1 *. b.x1) +. (a.z1 *. b.x2);
@@ -98,7 +101,7 @@ module Mat3 = struct
         z2 = 1.0;
       }
     in
-    r_z ** r_y ** r_x
+    r_z *** r_y *** r_x
 end
 
 module Ray = struct

@@ -5,6 +5,7 @@ module Vec3 : sig
   val ( - ) : t -> t -> t
   val ( * ) : float -> t -> t
   val dot : t -> t -> float
+  val magnitude2 : t -> float
   val magnitude : t -> float
   val normalised : t -> t
 end
@@ -22,7 +23,7 @@ module Mat3 : sig
     z2 : float;
   }
 
-  val ( ** ) : t -> t -> t
+  val ( *** ) : t -> t -> t
   val ( * ) : t -> Vec3.t -> Vec3.t
   val rot_from_euler : float -> float -> float -> t
 end

@@ -1,11 +1,10 @@
 open Otorus
-open Otorus.Torus
 open Otorus.Linalg
 
 let width = 960
 let height = 640
 let field_of_view = 90.0
-let torus : Torus.t = { maj_r = 5.0; min_r = 1.0 }
+let torus = Torus.create 5.0 1.0
 let bg_value = 120
 
 let rot_mat : Mat3.t =
@@ -21,17 +20,23 @@ let init_window () =
   set_color (rgb bg_value bg_value bg_value);
   fill_rect 0 0 width height
 
+let render_pixel x y =
+  Graphics.moveto x y;
+  let ray = Render.compute_ray x y width height field_of_view rot_mat in
+  match Render.render_ray ray torus with
+  | None -> ()
+  | Some c ->
+      Graphics.set_color c;
+      Graphics.plot x y
+
 let () =
+  let start = Unix.gettimeofday () in
   init_window ();
   for y = 0 to height do
     for x = 0 to width do
-      Graphics.moveto x y;
-      let ray = Render.compute_ray x y width height field_of_view rot_mat in
-      match Render.render_ray ray torus with
-      | None -> ()
-      | Some c ->
-          Graphics.set_color c;
-          Graphics.plot x y
+      render_pixel x y
     done
   done;
+  let stop = Unix.gettimeofday () in
+  Printf.printf "Execution time: %fs\n%!" (stop -. start);
   Graphics.loop_at_exit [ Key_pressed ] exit_handler
