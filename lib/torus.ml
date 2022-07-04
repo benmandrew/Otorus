@@ -149,7 +149,7 @@ let intersection t r =
     let dist =
       List.filter (fun x -> x > epsilon) roots |> List.fold_left min infinity
     in
-    if Float.is_infinite dist then None else Some (Ray.point_along r' dist)
+    if Float.is_infinite dist then None else Some (Ray.point_along r' dist, dist)
 
 let normal t (p : Vec.t) =
   let open Vec in

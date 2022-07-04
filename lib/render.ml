@@ -35,9 +35,27 @@ let brdf n : Graphics.color =
   in
   vec_to_colour (albedo + specular)
 
-let render_ray r t : Graphics.color option =
-  match Torus.intersection t r with
-  | None -> None
-  | Some p ->
+let render_ray r ts : Graphics.color option =
+  let intersections = List.filter_map
+    (fun t -> match Torus.intersection t r with
+    | None -> None
+    | Some (p, d) -> Some (t, p, d)) ts in
+  match intersections with
+  | [] -> None
+  | head::tail -> begin
+    let (t, p, _) = List.fold_left
+      (fun (t0, p0, d0) (t1, p1, d1) -> if Float.compare d0 d1 < 0 then (t0, p0, d0) else (t1, p1, d1))
+      head tail in
       let n = Torus.normal t p in
       Some (brdf n)
+  end
+
+
+
+
+
+  (* match Torus.intersection t r with
+  | None -> None
+  | Some (p, _) ->
+      let n = Torus.normal t p in
+      Some (brdf n) *)
