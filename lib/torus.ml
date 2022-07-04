@@ -153,5 +153,5 @@ let intersection t r =
 
 let normal t (p : Vec.t) =
   let open Vec in
-  let p_on_circle = t.maj_r * normalised (make_vec p.x 0.0 p.z) in
+  let p_on_circle = t.maj_r * normalised (make_point p.x 0.0 p.z) in
   normalised (p - p_on_circle)

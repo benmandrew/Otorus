@@ -6,9 +6,9 @@ let height = 640
 let field_of_view = 90.0
 
 let tori =
+  let open Transform in
   [
     Torus.create 5.0 1.0
-      (let open Transform in
       {
         x = 2.5;
         y = 0.0;
@@ -16,17 +16,16 @@ let tori =
         psi = -.(Float.pi /. 8.0);
         theta = 0.0;
         phi = -.(Float.pi /. 16.0);
-      });
+      };
     Torus.create 5.0 1.0
-      (let open Transform in
       {
-        x = -.2.5;
+        x = -2.5;
         y = 0.0;
         z = 0.0;
-        psi = (Float.pi /. 4.0);
+        psi = Float.pi /. 4.0;
         theta = 0.0;
-        phi = (Float.pi /. 8.0);
-      });
+        phi = Float.pi /. 8.0;
+      };
   ]
 
 let bg_value = 120
