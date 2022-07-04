@@ -4,11 +4,20 @@ open Otorus.Linalg
 let width = 960
 let height = 640
 let field_of_view = 90.0
-let torus = Torus.create 5.0 1.0
-let bg_value = 120
 
-let rot_mat : Mat3.t =
-  Mat3.rot_from_euler (Float.pi /. 4.0) (Float.pi /. 4.0) (Float.pi /. 4.0)
+let torus =
+  Torus.create 5.0 1.0
+    (let open Transform in
+    {
+      x = 0.0;
+      y = 0.0;
+      z = 0.0;
+      psi = -.(Float.pi /. 8.0);
+      theta = 0.0;
+      phi = -.(Float.pi /. 16.0);
+    })
+
+let bg_value = 120
 
 let exit_handler (status : Graphics.status) =
   if status.keypressed && status.key == ' ' then raise Exit else ()
@@ -22,9 +31,12 @@ let init_window () =
 
 let render_pixel x y =
   Graphics.moveto x y;
-  let ray = Render.compute_ray x y width height field_of_view rot_mat in
+  let ray = Render.compute_ray x y width height field_of_view in
   match Render.render_ray ray torus with
-  | None -> ()
+  | None ->
+      ()
+      (* Graphics.set_color Graphics.green;
+         Graphics.plot x y *)
   | Some c ->
       Graphics.set_color c;
       Graphics.plot x y
