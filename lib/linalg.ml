@@ -40,12 +40,14 @@ end
 module Ray = struct
   type t = { o : Vec.t; d : Vec.t }
 
+  let create o d = { o; d = Vec.normalised d }
+
   let point_along r d : Vec.t =
     let x = r.o.x +. (r.d.x *. d) in
     let y = r.o.y +. (r.d.y *. d) in
     let z = r.o.z +. (r.d.z *. d) in
-    let w = r.o.w +. (r.d.w *. d) in
-    { x; y; z; w }
+    (* let w = r.o.w +. (r.d.w *. d) in *)
+    { x; y; z; w = 1.0 }
 end
 
 module Mat = struct
@@ -67,6 +69,26 @@ module Mat = struct
     w2 : float;
     w3 : float;
   }
+
+  let transpose t =
+    {
+      x0 = t.x0;
+      x1 = t.y0;
+      x2 = t.z0;
+      x3 = t.w0;
+      y0 = t.x1;
+      y1 = t.y1;
+      y2 = t.z1;
+      y3 = t.w1;
+      z0 = t.x2;
+      z1 = t.y2;
+      z2 = t.z2;
+      z3 = t.w2;
+      w0 = t.x3;
+      w1 = t.y3;
+      w2 = t.z3;
+      w3 = t.w3;
+    }
 
   let ( *** ) b a =
     {
@@ -98,71 +120,35 @@ module Mat = struct
 
   let transform_ray m r =
     let open Ray in
-    { o = Vec.w_normalised (m * r.o); d = m * r.d }
+    { o = Vec.w_normalised (m * r.o); d = Vec.normalised (m * r.d) }
 
+  (* http://eecs.qmul.ac.uk/~gslabaugh/publications/euler.pdf *)
   let rot_from_euler psi theta phi =
     let open Float in
-    let r_x =
-      {
-        x0 = 1.0;
-        x1 = 0.0;
-        x2 = 0.0;
-        x3 = 0.0;
-        y0 = 0.0;
-        y1 = cos psi;
-        y2 = -.sin psi;
-        y3 = 0.0;
-        z0 = 0.0;
-        z1 = sin psi;
-        z2 = cos psi;
-        z3 = 0.0;
-        w0 = 0.0;
-        w1 = 0.0;
-        w2 = 0.0;
-        w3 = 1.0;
-      }
-    in
-    let r_y =
-      {
-        x0 = cos theta;
-        x1 = 0.0;
-        x2 = sin theta;
-        x3 = 0.0;
-        y0 = 0.0;
-        y1 = 1.0;
-        y2 = 0.0;
-        y3 = 0.0;
-        z0 = -.sin theta;
-        z1 = 0.0;
-        z2 = cos theta;
-        z3 = 0.0;
-        w0 = 0.0;
-        w1 = 0.0;
-        w2 = 0.0;
-        w3 = 1.0;
-      }
-    in
-    let r_z =
-      {
-        x0 = cos phi;
-        x1 = -.sin phi;
-        x2 = 0.0;
-        x3 = 0.0;
-        y0 = sin phi;
-        y1 = cos phi;
-        y2 = 0.0;
-        y3 = 0.0;
-        z0 = 0.0;
-        z1 = 0.0;
-        z2 = 1.0;
-        z3 = 0.0;
-        w0 = 0.0;
-        w1 = 0.0;
-        w2 = 0.0;
-        w3 = 1.0;
-      }
-    in
-    r_z *** r_y *** r_x
+    let cpsi = cos psi in
+    let spsi = sin psi in
+    let ctheta = cos theta in
+    let stheta = sin theta in
+    let cphi = cos phi in
+    let sphi = sin phi in
+    {
+      x0 = ctheta *. cphi;
+      x1 = (spsi *. stheta *. cphi) -. (cpsi *. sphi);
+      x2 = (cpsi *. stheta *. cphi) +. (spsi *. sphi);
+      x3 = 0.0;
+      y0 = ctheta *. sphi;
+      y1 = (spsi *. stheta *. sphi) +. (cpsi *. cphi);
+      y2 = (cpsi *. stheta *. sphi) -. (spsi *. cphi);
+      y3 = 0.0;
+      z0 = -stheta;
+      z1 = spsi *. ctheta;
+      z2 = cpsi *. ctheta;
+      z3 = 0.0;
+      w0 = 0.0;
+      w1 = 0.0;
+      w2 = 0.0;
+      w3 = 1.0;
+    }
 
   let translation x y z =
     {
@@ -203,7 +189,7 @@ module Transform = struct
 
   let generate_inverse tr =
     let open Mat in
-    let rotation = rot_from_euler (-.tr.psi) (-.tr.theta) (-.tr.phi) in
+    let rotation = transpose (rot_from_euler tr.psi tr.theta tr.phi) in
     let translation = translation (-.tr.x) (-.tr.y) (-.tr.z) in
     rotation *** translation
 end

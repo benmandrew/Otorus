@@ -1,3 +1,5 @@
 (library
  (name otorus)
- (libraries core graphics))
+ (libraries core graphics)
+ (ocamlopt_flags
+  (:standard -O3)))

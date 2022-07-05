@@ -2,8 +2,8 @@
 opam-version: "2.0"
 authors: ["Ben Andrew"]
 license: "MIT"
-homepage: "https://github.com/benmandrew/otorus"
-bug-reports: "https://github.com/benmandrew/otorus/issues"
+homepage: "https://github.com/benmandrew/Otorus"
+bug-reports: "https://github.com/benmandrew/Otorus/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.0"}
@@ -23,4 +23,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/benmandrew/otorus.git"
+dev-repo: "git+https://github.com/benmandrew/Otorus.git"

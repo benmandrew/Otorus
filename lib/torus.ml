@@ -106,9 +106,10 @@ type t = {
   trf : Mat.t;
   inv_trf : Mat.t;
   bound_s : Sphere.t;
+  colour : Vec.t;
 }
 
-let create maj_r min_r (trf : Transform.t) =
+let create maj_r min_r (trf : Transform.t) (colour : Vec.t) =
   let bound_s : Sphere.t = { r = maj_r +. min_r } in
   {
     maj_r;
@@ -116,6 +117,7 @@ let create maj_r min_r (trf : Transform.t) =
     trf = Transform.generate trf;
     inv_trf = Transform.generate_inverse trf;
     bound_s;
+    colour;
   }
 
 (* http://blog.marcinchwedczuk.pl/ray-tracing-torus *)
@@ -149,9 +151,13 @@ let intersection t r =
     let dist =
       List.filter (fun x -> x > epsilon) roots |> List.fold_left min infinity
     in
-    if Float.is_infinite dist then None else Some (Ray.point_along r' dist, dist)
+    if Float.is_infinite dist then None else Some (Ray.point_along r dist, dist)
 
 let normal t (p : Vec.t) =
+  let p' = Mat.( * ) t.inv_trf p in
   let open Vec in
-  let p_on_circle = t.maj_r * normalised (make_point p.x 0.0 p.z) in
-  normalised (p - p_on_circle)
+  let v_on_circle = t.maj_r * normalised (make_vec p'.x 0.0 p'.z) in
+  let p_on_circle = make_point v_on_circle.x 0.0 v_on_circle.z in
+  normalised (p - Mat.( * ) t.trf p_on_circle)
+
+let colour t : Vec.t = t.colour

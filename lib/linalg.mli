@@ -16,6 +16,7 @@ end
 module Ray : sig
   type t = { o : Vec.t; d : Vec.t }
 
+  val create : Vec.t -> Vec.t -> t
   val point_along : t -> float -> Vec.t
 end
 
@@ -39,6 +40,7 @@ module Mat : sig
     w3 : float;
   }
 
+  val transpose : t -> t
   val ( *** ) : t -> t -> t
   val ( * ) : t -> Vec.t -> Vec.t
   val transform_ray : t -> Ray.t -> Ray.t

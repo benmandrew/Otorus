@@ -5,7 +5,7 @@
 (generate_opam_files true)
 
 (source
- (github benmandrew/otorus))
+ (github benmandrew/Otorus))
 
 (authors "Ben Andrew")
 
