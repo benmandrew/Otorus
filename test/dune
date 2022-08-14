@@ -1,2 +1,8 @@
-(test
- (name otorus))
+(library
+ (name tests)
+ (libraries otorus)
+ (ocamlopt_flags
+  (:standard -O3))
+ (inline_tests)
+ (preprocess
+  (pps ppx_inline_test ppx_assert)))
