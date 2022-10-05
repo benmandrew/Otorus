@@ -48,7 +48,8 @@ let render_pixel x y =
   let ray = Render.compute_ray x y width height pos field_of_view in
   match Render.render_ray ray tori with
   | None ->
-      ()
+      (* () *)
+      Graphics.plot x y
       (* Graphics.set_color Graphics.green;
       Graphics.plot x y *)
   | Some c ->
