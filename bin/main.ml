@@ -51,7 +51,7 @@ let render_pixel x y =
       (* () *)
       Graphics.plot x y
       (* Graphics.set_color Graphics.green;
-      Graphics.plot x y *)
+         Graphics.plot x y *)
   | Some c ->
       Graphics.set_color c;
       Graphics.plot x y
