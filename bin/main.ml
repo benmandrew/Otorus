@@ -53,7 +53,7 @@ let render_pixel x y =
       (* Graphics.set_color Graphics.green; *)
   | Some c ->
       Graphics.set_color c;
-      Graphics.plot x y
+      Graphics.plot x y;
 
 let () =
   let start = Unix.gettimeofday () in
