@@ -49,9 +49,8 @@ let render_pixel x y =
   match Render.render_ray ray tori with
   | None ->
       (* () *)
-      Graphics.plot x y
-      (* Graphics.set_color Graphics.green;
-         Graphics.plot x y *)
+      (* Graphics.plot x y *)
+      Graphics.set_color Graphics.green;
   | Some c ->
       Graphics.set_color c;
       Graphics.plot x y
