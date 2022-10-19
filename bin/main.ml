@@ -55,6 +55,7 @@ let render_pixel x y =
       Graphics.set_color c;
       Graphics.plot x y
 
+      
 let () =
   let start = Unix.gettimeofday () in
   init_window ();
