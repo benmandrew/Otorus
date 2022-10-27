@@ -1,6 +1,6 @@
 (executable
  (public_name otorus)
  (name main)
- (libraries otorus graphics unix)
+ (libraries otorus graphics unix domainslib)
  (ocamlopt_flags
   (:standard -O3)))

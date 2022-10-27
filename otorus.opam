@@ -8,7 +8,7 @@ license: "MIT"
 homepage: "https://github.com/benmandrew/Otorus"
 bug-reports: "https://github.com/benmandrew/Otorus/issues"
 depends: [
-  "ocaml" { >= "4.08"}
+  "ocaml" { >= "5.00"}
   "dune" {>= "3.0"}
   "core"
   "graphics"
