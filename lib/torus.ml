@@ -106,10 +106,10 @@ type t = {
   trf : Mat.t;
   inv_trf : Mat.t;
   bound_s : Sphere.t;
-  colour : Vec.t;
+  color : Vec.t;
 }
 
-let create maj_r min_r (trf : Transform.t) (colour : Vec.t) =
+let create ~maj_r ~min_r (trf : Transform.t) (color : Vec.t) =
   let bound_s : Sphere.t = { r = maj_r +. min_r } in
   {
     maj_r;
@@ -117,7 +117,7 @@ let create maj_r min_r (trf : Transform.t) (colour : Vec.t) =
     trf = Transform.generate trf;
     inv_trf = Transform.generate_inverse trf;
     bound_s;
-    colour;
+    color;
   }
 
 (* http://blog.marcinchwedczuk.pl/ray-tracing-torus *)
@@ -160,4 +160,4 @@ let normal t (p : Vec.t) =
   let p_on_circle = make_point v_on_circle.x 0.0 v_on_circle.z in
   normalised (p - Mat.( * ) t.trf p_on_circle)
 
-let colour t : Vec.t = t.colour
+let color t : Vec.t = t.color

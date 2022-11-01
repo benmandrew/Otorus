@@ -1,23 +1,31 @@
 open Linalg
 
+type camera = {
+  width : int;
+  height : int;
+  pos : Linalg.Vec.t;
+  field_of_view : float;
+  bg_color : Graphics.color;
+}
+
 let deg_to_rad = Float.pi /. 180.0
 
-let compute_ray x y width height pos field_of_view : Ray.t =
+let compute_ray ~cam x y : Ray.t =
   let fx = float_of_int x in
   let fy = float_of_int y in
-  let fwidth = float_of_int width in
-  let fheight = float_of_int height in
+  let fwidth = float_of_int cam.width in
+  let fheight = float_of_int cam.height in
   let vx = fx -. (fwidth /. 2.0) in
   let vy = fy -. (fheight /. 2.0) in
-  let vz = fheight /. Float.tan (deg_to_rad *. field_of_view /. 2.0) in
+  let vz = fheight /. Float.tan (deg_to_rad *. cam.field_of_view /. 2.0) in
   let d = Vec.normalised (Vec.make_vec vx vy vz) in
-  { o = pos; d }
+  { o = cam.pos; d }
 
 let smooth_clamp (v : Vec.t) : Vec.t =
   let f x = x /. (x +. 0.1) in
   Vec.make_vec (f v.x) (f v.y) (f v.z)
 
-let vec_to_colour v : Graphics.color =
+let vec_to_color v : Graphics.color =
   let c = smooth_clamp v in
   Graphics.rgb
     (int_of_float (255.0 *. c.x))
@@ -25,8 +33,6 @@ let vec_to_colour v : Graphics.color =
     (int_of_float (255.0 *. c.z))
 
 let light_pos = Vec.make_point 50.0 10.0 (-30.0)
-
-(* let light_pos = Vec.make_point (-100.0) 0.0 0.0 *)
 
 let intersect_ray r ts =
   let intersections =
@@ -50,12 +56,15 @@ let intersect_ray r ts =
 
 let brdf t p n : Graphics.color =
   let open Vec in
-  let ambient = 0.01 * Torus.colour t in
-  let value = Float.max (dot n (normalised (light_pos - p))) 0.0 in
-  let albedo = Float.pow value 2.0 * Torus.colour t in
+  let ambient = 0.01 * Torus.color t in
+  let value =
+    let unclamped = dot n (normalised (light_pos - p)) in
+    Float.max ((unclamped +. 0.5) /. 1.5) 0.0
+  in
+  let albedo = Float.pow value 2.0 * Torus.color t in
   let spec_val = Float.pow value 100.0 in
   let specular = make_vec spec_val spec_val spec_val in
-  vec_to_colour (ambient + albedo + specular)
+  vec_to_color (ambient + albedo + specular)
 
 let render_ray r ts : Graphics.color option =
   match intersect_ray r ts with

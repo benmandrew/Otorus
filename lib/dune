@@ -1,5 +1,5 @@
 (library
  (name otorus)
- (libraries core graphics)
+ (libraries core graphics domainslib)
  (ocamlopt_flags
   (:standard -O3)))
