@@ -6,6 +6,6 @@ module type ENGINE = sig
 end
 
 module ParallelTile : ENGINE
-module ParallelRow : ENGINE
+module ParallelRowAuto : ENGINE
+module ParallelColumnAuto : ENGINE
 module SequentialTile : ENGINE
-module SequentialRow : ENGINE
