@@ -12,13 +12,11 @@ let exit_handler (status : Graphics.status) =
 let () =
   (* let start = Unix.gettimeofday () in *)
   init_window ~cam:Config.cam;
-  begin
-    if Array.length Sys.argv > 1 then
-      Engine.set_render_dims_xy
-        ~x:(int_of_string Sys.argv.(1))
-        ~y:(int_of_string Sys.argv.(2))
-    else ()
-  end;
+  if Array.length Sys.argv > 1 then
+    Engine.set_render_dims_xy
+      ~x:(int_of_string Sys.argv.(1))
+      ~y:(int_of_string Sys.argv.(2))
+  else ();
 
   Engine.SequentialTile.render ~cam:Config.cam Config.tori;
 
