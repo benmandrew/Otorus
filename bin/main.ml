@@ -4,6 +4,7 @@ open Otorus.Linalg
 let width = 960
 let height = 640
 let pos = Vec.make_point 0.0 0.0 (-25.0)
+
 let field_of_view = 60.0
 
 let tori =
