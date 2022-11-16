@@ -4,7 +4,6 @@ open Otorus.Linalg
 let width = 960
 let height = 640
 let pos = Vec.make_point 0.0 0.0 (-25.0)
-
 let field_of_view = 60.0
 
 let tori =
@@ -51,12 +50,11 @@ let render_pixel x y =
   | None ->
       ()
       (* Graphics.plot x y;
-      Graphics.set_color Graphics.green; *)
+         Graphics.set_color Graphics.green; *)
   | Some c ->
       Graphics.set_color c;
       Graphics.plot x y
 
-      
 let () =
   let start = Unix.gettimeofday () in
   init_window ();
