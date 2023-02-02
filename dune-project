@@ -2,7 +2,7 @@
 
 (name otorus)
 
-(generate_opam_files true)
+; (generate_opam_files true)
 
 (source
  (github benmandrew/Otorus))
