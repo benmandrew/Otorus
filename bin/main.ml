@@ -1,5 +1,5 @@
 open Otorus
-module Frontend = Frontend.Notty
+module Frontend = Frontend.Terminal
 module Engine = Engine.SequentialTile
 
 let () =

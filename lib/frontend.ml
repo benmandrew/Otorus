@@ -4,7 +4,7 @@ module type FRONTEND = sig
   val finalise : unit -> unit
 end
 
-module Graphics : FRONTEND = struct
+module Window : FRONTEND = struct
   let init cam =
     Graphics.open_graph (Printf.sprintf " %dx%d" cam.Render.width cam.height);
     Graphics.(set_color (rgb 0 0 0));
@@ -20,18 +20,30 @@ module Graphics : FRONTEND = struct
   let finalise () = Graphics.loop_at_exit [ Key_pressed ] exit_handler
 end
 
-module Notty : FRONTEND = struct
+module Terminal : FRONTEND = struct
   open Notty
   open Notty_unix
 
   let tty = ref @@ Term.create ()
   let init _ = ()
 
+  let lum r g b =
+    let r = float_of_int r in
+    let g = float_of_int g in
+    let b = float_of_int b in
+    0.2126 *. r +. 0.7152 *. g +. 0.0722 *. b
+
+  let pixel_ascii_map = "`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
+
+  let get_char r g b =
+    let lum = int_of_float @@ lum r g b in
+    let i = lum * String.length pixel_ascii_map / 255 in
+    String.get pixel_ascii_map i
+
   let render (w, h) img : image =
     let f x y =
       let r, g, b = img.(y).(x) in
-      if r <= 0 && g <= 0 && b <= 0 then I.void 1 1
-      else I.char A.(fg (rgb_888 ~r ~g ~b)) 'O' 1 1
+      I.char A.(fg (rgb_888 ~r ~g ~b)) (get_char r g b) 1 1
     in
     I.tabulate w (h - 1) f
 
@@ -39,5 +51,6 @@ module Notty : FRONTEND = struct
     let size = Term.size !tty in
     Term.image !tty @@ render size img
 
-  let finalise () = ()
+  let finalise () =
+    Unix.sleepf 5.0
 end
