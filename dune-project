@@ -16,6 +16,6 @@
  (name otorus)
  (synopsis "Parallelised torus ray-tracer")
  (description "Parallelised torus ray-tracer")
- (depends (ocaml (>= :"5.00")) dune core graphics (domainslib (>= :"0.5.0")) ppx_inline_test))
+ (depends (ocaml (>= "5.00")) dune core graphics (domainslib (>= "0.5.0")) ppx_inline_test))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
