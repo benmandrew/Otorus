@@ -21,7 +21,23 @@ module Graphics : FRONTEND = struct
 end
 
 module Notty : FRONTEND = struct
+  open Notty
+  open Notty_unix
+
+  let tty = ref @@ Term.create ()
   let init _ = ()
-  let draw _ = ()
+
+  let render (w, h) img : image =
+    let f x y =
+      let r, g, b = img.(y).(x) in
+      if r <= 0 && g <= 0 && b <= 0 then I.void 1 1
+      else I.char A.(fg (rgb_888 ~r ~g ~b)) 'O' 1 1
+    in
+    I.tabulate w (h - 1) f
+
+  let draw img =
+    let size = Term.size !tty in
+    Term.image !tty @@ render size img
+
   let finalise () = ()
 end
