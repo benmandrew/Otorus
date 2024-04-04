@@ -5,7 +5,7 @@ type camera = {
   height : int;
   pos : Linalg.Vec.t;
   field_of_view : float;
-  bg_color : Graphics.color;
+  bg_color : int * int * int;
 }
 
 let deg_to_rad = Float.pi /. 180.0
@@ -25,12 +25,11 @@ let smooth_clamp (v : Vec.t) : Vec.t =
   let f x = x /. (x +. 0.1) in
   Vec.make_vec (f v.x) (f v.y) (f v.z)
 
-let vec_to_color v : Graphics.color =
+let vec_to_color v =
   let c = smooth_clamp v in
-  Graphics.rgb
-    (int_of_float (255.0 *. c.x))
-    (int_of_float (255.0 *. c.y))
-    (int_of_float (255.0 *. c.z))
+  ( int_of_float (255.0 *. c.x),
+    int_of_float (255.0 *. c.y),
+    int_of_float (255.0 *. c.z) )
 
 let light_pos = Vec.make_point 50.0 10.0 (-30.0)
 
@@ -54,7 +53,7 @@ let intersect_ray r ts =
       in
       Some (t, p)
 
-let brdf t p n : Graphics.color =
+let brdf t p n =
   let open Vec in
   let ambient = 0.01 * Torus.color t in
   let value =
@@ -66,7 +65,7 @@ let brdf t p n : Graphics.color =
   let specular = make_vec spec_val spec_val spec_val in
   vec_to_color (ambient + albedo + specular)
 
-let render_ray r ts : Graphics.color option =
+let render_ray r ts =
   match intersect_ray r ts with
   | None -> None
   | Some (t, p) ->
