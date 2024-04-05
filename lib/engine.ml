@@ -13,14 +13,16 @@ let random_indices width height =
   a
 
 module type ENGINE = sig
-
   val set_render_dims_xy : x:int -> y:int -> unit
   val set_render_dims_y : y:int -> unit
-  val render : draw:(T.image -> unit) -> cam:Render.camera -> Torus.t list -> unit
+
+  val render :
+    draw:(T.image -> unit) -> cam:Render.camera -> Torus.t list -> unit
 end
 
 module Make (S : sig
-  val render : draw:(T.image -> unit) -> cam:Render.camera -> Torus.t list -> unit
+  val render :
+    draw:(T.image -> unit) -> cam:Render.camera -> Torus.t list -> unit
 end) =
 struct
   let set_render_dims_xy ~x ~y =

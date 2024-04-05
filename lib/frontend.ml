@@ -1,17 +1,23 @@
 module type FRONTEND = sig
-  val init : Render.camera -> unit
-  val draw : T.image -> unit
-  val finalise : unit -> unit
+  type ctx
+
+  val init : Render.camera -> ctx
+  val draw : ctx -> T.image -> unit
+  val finalise : ctx -> unit
 end
 
 module Window : FRONTEND = struct
+  type ctx = unit
+
   let init cam =
     Graphics.open_graph (Printf.sprintf " %dx%d" cam.Render.width cam.height);
     Graphics.(set_color (rgb 0 0 0));
     Graphics.fill_rect 0 0 cam.width cam.height
 
-  let draw img =
-    let img = Array.map (Array.map (fun (r, g, b, _a) -> Graphics.rgb r g b)) img in
+  let draw () img =
+    let img =
+      Array.map (Array.map (fun (r, g, b, _a) -> Graphics.rgb r g b)) img
+    in
     Graphics.(draw_image (make_image img) 0 0)
 
   let exit_handler (status : Graphics.status) =
@@ -24,8 +30,9 @@ module Terminal : FRONTEND = struct
   open Notty
   open Notty_unix
 
-  let tty = ref @@ Term.create ()
-  let init _ = ()
+  type ctx = Term.t
+
+  let init _ = Term.create ()
 
   let lum r g b =
     let r = float_of_int r in
@@ -45,15 +52,15 @@ module Terminal : FRONTEND = struct
     let f x y =
       let r, g, b, _a = img.(y).(x) in
       (* if a = 0 then
-        I.void 1 1
-      else *)
-        I.char A.(fg (rgb_888 ~r ~g ~b)) (get_char r g b) 1 1
+           I.void 1 1
+         else *)
+      I.char A.(fg (rgb_888 ~r ~g ~b)) (get_char r g b) 1 1
     in
     I.tabulate w (h - 1) f
 
-  let draw img =
-    let size = Term.size !tty in
-    Term.image !tty @@ render size img
+  let draw ctx img =
+    let size = Term.size ctx in
+    Term.image ctx @@ render size img
 
-  let finalise () = Unix.sleepf 5.0
+  let finalise _ = Unix.sleepf 5.0
 end

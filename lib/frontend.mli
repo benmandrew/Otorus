@@ -1,7 +1,9 @@
 module type FRONTEND = sig
-  val init : Render.camera -> unit
-  val draw : T.image -> unit
-  val finalise : unit -> unit
+  type ctx
+
+  val init : Render.camera -> ctx
+  val draw : ctx -> T.image -> unit
+  val finalise : ctx -> unit
 end
 
 module Window : FRONTEND
