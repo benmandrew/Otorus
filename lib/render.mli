@@ -5,8 +5,8 @@ type camera = {
   height : int;
   pos : Linalg.Vec.t;
   field_of_view : float;
-  bg_color : int * int * int;
+  bg_colour : T.colour;
 }
 
 val compute_ray : cam:camera -> int -> int -> Ray.t
-val render_ray : Ray.t -> Torus.t list -> (int * int * int) option
+val render_ray : Ray.t -> Torus.t list -> T.colour option

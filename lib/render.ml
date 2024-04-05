@@ -5,7 +5,7 @@ type camera = {
   height : int;
   pos : Linalg.Vec.t;
   field_of_view : float;
-  bg_color : int * int * int;
+  bg_colour : T.colour;
 }
 
 let deg_to_rad = Float.pi /. 180.0

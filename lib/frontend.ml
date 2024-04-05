@@ -1,6 +1,6 @@
 module type FRONTEND = sig
   val init : Render.camera -> unit
-  val draw : (int * int * int) array array -> unit
+  val draw : T.image -> unit
   val finalise : unit -> unit
 end
 
@@ -31,9 +31,10 @@ module Terminal : FRONTEND = struct
     let r = float_of_int r in
     let g = float_of_int g in
     let b = float_of_int b in
-    0.2126 *. r +. 0.7152 *. g +. 0.0722 *. b
+    (0.2126 *. r) +. (0.7152 *. g) +. (0.0722 *. b)
 
-  let pixel_ascii_map = "`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
+  let pixel_ascii_map =
+    "`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
 
   let get_char r g b =
     let lum = int_of_float @@ lum r g b in
@@ -51,6 +52,5 @@ module Terminal : FRONTEND = struct
     let size = Term.size !tty in
     Term.image !tty @@ render size img
 
-  let finalise () =
-    Unix.sleepf 5.0
+  let finalise () = Unix.sleepf 5.0
 end
