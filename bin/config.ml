@@ -2,7 +2,6 @@ open Otorus
 open Otorus.Linalg
 
 let cam =
-  let bg_value = 225 in
   {
     (* Render.width = 960;
        height = 640; *)
@@ -10,7 +9,6 @@ let cam =
     height = 53;
     pos = Vec.make_point 0.0 0.0 (-100.0);
     field_of_view = 17.0;
-    bg_colour = (bg_value, bg_value, bg_value);
   }
 
 (* Olympic Rings *)

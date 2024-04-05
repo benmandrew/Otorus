@@ -11,7 +11,7 @@ module Window : FRONTEND = struct
     Graphics.fill_rect 0 0 cam.width cam.height
 
   let draw img =
-    let img = Array.map (Array.map (fun (r, g, b) -> Graphics.rgb r g b)) img in
+    let img = Array.map (Array.map (fun (r, g, b, _a) -> Graphics.rgb r g b)) img in
     Graphics.(draw_image (make_image img) 0 0)
 
   let exit_handler (status : Graphics.status) =
@@ -43,8 +43,11 @@ module Terminal : FRONTEND = struct
 
   let render (w, h) img : image =
     let f x y =
-      let r, g, b = img.(y).(x) in
-      I.char A.(fg (rgb_888 ~r ~g ~b)) (get_char r g b) 1 1
+      let r, g, b, _a = img.(y).(x) in
+      (* if a = 0 then
+        I.void 1 1
+      else *)
+        I.char A.(fg (rgb_888 ~r ~g ~b)) (get_char r g b) 1 1
     in
     I.tabulate w (h - 1) f
 

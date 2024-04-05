@@ -39,12 +39,12 @@ let render_tile ~cam tori img x0 y0 x1 y1 =
   for y = y0 to y1 - 1 do
     for x = x0 to x1 - 1 do
       match render_pixel ~cam tori x y with
-      | None -> img.(cam.height - y - 1).(x) <- cam.bg_colour
+      | None -> img.(cam.height - y - 1).(x) <- T.background
       | Some c -> img.(cam.height - y - 1).(x) <- c
     done
   done
 
-module T = Domainslib.Task
+module Dt = Domainslib.Task
 
 let n_cores = 4
 
@@ -52,9 +52,9 @@ module Pt = struct
   let render ~draw ~(cam : Render.camera) tori =
     let tile_width = cam.width / !n_tiles_x in
     let tile_height = cam.height / !n_tiles_y in
-    let img = Array.make_matrix cam.height cam.width cam.bg_colour in
+    let img = Array.make_matrix cam.height cam.width T.background in
     let indices = random_indices !n_tiles_x !n_tiles_y in
-    let pool = T.setup_pool ~num_domains:(n_cores - 1) () in
+    let pool = Dt.setup_pool ~num_domains:(n_cores - 1) () in
     let f (x, y) =
       let x0, y0, x1, y1 =
         ( tile_width * x,
@@ -62,42 +62,42 @@ module Pt = struct
           tile_width * (x + 1),
           tile_height * (y + 1) )
       in
-      T.async pool (fun () -> render_tile ~cam tori img x0 y0 x1 y1)
+      Dt.async pool (fun () -> render_tile ~cam tori img x0 y0 x1 y1)
     in
-    T.run pool (fun () -> Array.map f indices |> Array.iter (T.await pool));
-    T.teardown_pool pool;
+    Dt.run pool (fun () -> Array.map f indices |> Array.iter (Dt.await pool));
+    Dt.teardown_pool pool;
     draw img
 end
 
 module Pra = struct
   let render ~draw ~(cam : Render.camera) tori =
-    let img = Array.make_matrix cam.height cam.width cam.bg_colour in
-    let pool = T.setup_pool ~num_domains:(n_cores - 1) () in
+    let img = Array.make_matrix cam.height cam.width T.background in
+    let pool = Dt.setup_pool ~num_domains:(n_cores - 1) () in
     let f i =
       let x, y = (i mod cam.width, i / cam.width) in
       match render_pixel ~cam tori x y with
       | None -> ()
       | Some c -> img.(cam.height - y - 1).(x) <- c
     in
-    T.run pool (fun () ->
-        T.parallel_for ~start:0 ~finish:(cam.height * cam.width) ~body:f pool);
-    T.teardown_pool pool;
+    Dt.run pool (fun () ->
+        Dt.parallel_for ~start:0 ~finish:(cam.height * cam.width) ~body:f pool);
+    Dt.teardown_pool pool;
     draw img
 end
 
 module Pca = struct
   let render ~draw ~(cam : Render.camera) tori =
-    let img = Array.make_matrix cam.height cam.width cam.bg_colour in
-    let pool = T.setup_pool ~num_domains:(n_cores - 1) () in
+    let img = Array.make_matrix cam.height cam.width T.background in
+    let pool = Dt.setup_pool ~num_domains:(n_cores - 1) () in
     let f i =
       let x, y = (i / cam.height, i mod cam.height) in
       match render_pixel ~cam tori x y with
       | None -> ()
       | Some c -> img.(cam.height - y - 1).(x) <- c
     in
-    T.run pool (fun () ->
-        T.parallel_for ~start:0 ~finish:(cam.height * cam.width) ~body:f pool);
-    T.teardown_pool pool;
+    Dt.run pool (fun () ->
+        Dt.parallel_for ~start:0 ~finish:(cam.height * cam.width) ~body:f pool);
+    Dt.teardown_pool pool;
     draw img
 end
 
@@ -105,7 +105,7 @@ module St = struct
   let render ~draw ~(cam : Render.camera) tori =
     let tile_width = cam.width / !n_tiles_x in
     let tile_height = cam.height / !n_tiles_y in
-    let img = Array.make_matrix cam.height cam.width (0, 0, 0) in
+    let img = Array.make_matrix cam.height cam.width T.background in
     let indices = random_indices !n_tiles_x !n_tiles_y in
     let f (x, y) =
       let x0, y0, x1, y1 =

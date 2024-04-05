@@ -5,7 +5,6 @@ type camera = {
   height : int;
   pos : Linalg.Vec.t;
   field_of_view : float;
-  bg_colour : T.colour;
 }
 
 let deg_to_rad = Float.pi /. 180.0
@@ -29,7 +28,8 @@ let vec_to_color v =
   let c = smooth_clamp v in
   ( int_of_float (255.0 *. c.x),
     int_of_float (255.0 *. c.y),
-    int_of_float (255.0 *. c.z) )
+    int_of_float (255.0 *. c.z),
+    0 )
 
 let light_pos = Vec.make_point 50.0 10.0 (-30.0)
 
