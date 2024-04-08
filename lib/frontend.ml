@@ -50,11 +50,9 @@ module Terminal : FRONTEND = struct
 
   let render (w, h) img : image =
     let f x y =
-      let r, g, b, _a = img.(y).(x) in
-      (* if a = 0 then
-           I.void 1 1
-         else *)
-      I.char A.(fg (rgb_888 ~r ~g ~b)) (get_char r g b) 1 1
+      let r, g, b, a = img.(y).(x) in
+      if a = 0 then I.void 1 1
+      else I.char A.(fg (rgb_888 ~r ~g ~b)) (get_char r g b) 1 1
     in
     I.tabulate w (h - 1) f
 
@@ -62,5 +60,5 @@ module Terminal : FRONTEND = struct
     let size = Term.size ctx in
     Term.image ctx @@ render size img
 
-  let finalise _ = Unix.sleepf 5.0
+  let finalise _ = Unix.sleepf 1.0
 end

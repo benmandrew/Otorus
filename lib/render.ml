@@ -29,7 +29,7 @@ let vec_to_color v =
   ( int_of_float (255.0 *. c.x),
     int_of_float (255.0 *. c.y),
     int_of_float (255.0 *. c.z),
-    0 )
+    1 )
 
 let light_pos = Vec.make_point 50.0 10.0 (-30.0)
 

@@ -8,4 +8,4 @@ type camera = {
 }
 
 val compute_ray : cam:camera -> int -> int -> Ray.t
-val render_ray : Ray.t -> Torus.t list -> T.colour option
+val render_ray : Ray.t -> Torus.t list -> T.color option

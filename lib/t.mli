@@ -1,9 +1,9 @@
-type colour = int * int * int * int
+type color = int * int * int * int
 
-val background : colour
-val r : colour -> int
-val g : colour -> int
-val b : colour -> int
-val a : colour -> int
+val background : color
+val r : color -> int
+val g : color -> int
+val b : color -> int
+val a : color -> int
 
-type image = colour array array
+type image = color array array

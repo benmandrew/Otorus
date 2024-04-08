@@ -103,8 +103,9 @@ end
 type t = {
   maj_r : float;
   min_r : float;
-  trf : Mat.t;
-  inv_trf : Mat.t;
+  trf : Transform.t;
+  t : Mat.t;
+  inv_t : Mat.t;
   bound_s : Sphere.t;
   color : Vec.t;
 }
@@ -114,8 +115,9 @@ let create ~maj_r ~min_r (trf : Transform.t) (color : Vec.t) =
   {
     maj_r;
     min_r;
-    trf = Transform.generate trf;
-    inv_trf = Transform.generate_inverse trf;
+    trf;
+    t = Transform.generate trf;
+    inv_t = Transform.generate_inverse trf;
     bound_s;
     color;
   }
@@ -143,7 +145,7 @@ let generate_quartic (r : Ray.t) t : Quartic.t =
   { a; b; c; d; e }
 
 let intersection t r =
-  let r' = Mat.transform_ray t.inv_trf r in
+  let r' = Mat.transform_ray t.inv_t r in
   if not (Sphere.intersection t.bound_s r') then None
   else
     let q = generate_quartic r' t in
@@ -154,10 +156,14 @@ let intersection t r =
     if Float.is_infinite dist then None else Some (Ray.point_along r dist, dist)
 
 let normal t (p : Vec.t) =
-  let p' = Mat.( * ) t.inv_trf p in
+  let p' = Mat.( * ) t.inv_t p in
   let open Vec in
   let v_on_circle = t.maj_r * normalised (make_vec p'.x 0.0 p'.z) in
   let p_on_circle = make_point v_on_circle.x 0.0 v_on_circle.z in
-  normalised (p - Mat.( * ) t.trf p_on_circle)
+  normalised (p - Mat.( * ) t.t p_on_circle)
 
+let maj_r t = t.maj_r
+let min_r t = t.min_r
+let transform t = t.trf
+let mat t = t.t
 let color t : Vec.t = t.color
