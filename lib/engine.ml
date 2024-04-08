@@ -1,15 +1,16 @@
 let n_tiles_x = ref 12
 let n_tiles_y = ref 8
 
-let random_indices width height =
+let indices ?(random = false) width height =
   let n = width * height in
   let a = Array.init n (fun i -> (i mod width, height - (i / width) - 1)) in
-  (* for i = n - 1 downto 1 do
-       let k = Random.int (i + 1) in
-       let x = a.(k) in
-       a.(k) <- a.(i);
-       a.(i) <- x
-     done; *)
+  if random then
+    for i = n - 1 downto 1 do
+      let k = Random.int (i + 1) in
+      let x = a.(k) in
+      a.(k) <- a.(i);
+      a.(i) <- x
+    done;
   a
 
 module type ENGINE = sig
@@ -55,7 +56,7 @@ module Pt = struct
     let tile_width = cam.width / !n_tiles_x in
     let tile_height = cam.height / !n_tiles_y in
     let img = Array.make_matrix cam.height cam.width T.background in
-    let indices = random_indices !n_tiles_x !n_tiles_y in
+    let indices = indices !n_tiles_x !n_tiles_y in
     let pool = Dt.setup_pool ~num_domains:(n_cores - 1) () in
     let f (x, y) =
       let x0, y0, x1, y1 =
@@ -108,7 +109,7 @@ module St = struct
     let tile_width = cam.width / !n_tiles_x in
     let tile_height = cam.height / !n_tiles_y in
     let img = Array.make_matrix cam.height cam.width T.background in
-    let indices = random_indices !n_tiles_x !n_tiles_y in
+    let indices = indices !n_tiles_x !n_tiles_y in
     let f (x, y) =
       let x0, y0, x1, y1 =
         ( tile_width * x,
