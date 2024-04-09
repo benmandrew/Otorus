@@ -15,6 +15,7 @@ depends: [
   "domainslib" {>= "0.5.0"}
   "ppx_inline_test"
   "notty"
+  "cmdliner"
   "odoc" {with-doc}
 ]
 build: [
