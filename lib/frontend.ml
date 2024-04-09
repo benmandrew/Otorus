@@ -1,20 +1,24 @@
 module type FRONTEND = sig
   type ctx
 
-  val init : Render.camera -> ctx
+  val init : (int -> int -> Render.camera) -> ctx
   val draw : ctx -> T.image -> unit
   val finalise : ctx -> unit
+  val get_cam : ctx -> Render.camera
 end
 
 module Window : FRONTEND = struct
-  type ctx = unit
+  type ctx = Render.camera
 
-  let init cam =
-    Graphics.open_graph (Printf.sprintf " %dx%d" cam.Render.width cam.height);
+  let init gen_cam =
+    let width = 960 in
+    let height = 640 in
+    Graphics.open_graph (Printf.sprintf " %dx%d" width height);
     Graphics.(set_color (rgb 0 0 0));
-    Graphics.fill_rect 0 0 cam.width cam.height
+    Graphics.fill_rect 0 0 width height;
+    gen_cam width height
 
-  let draw () img =
+  let draw _ img =
     let img =
       Array.map (Array.map (fun (r, g, b, _a) -> Graphics.rgb r g b)) img
     in
@@ -23,16 +27,22 @@ module Window : FRONTEND = struct
   let exit_handler (status : Graphics.status) =
     if status.keypressed && status.key == ' ' then raise Exit else ()
 
-  let finalise () = Graphics.loop_at_exit [ Key_pressed ] exit_handler
+  let finalise _ = Graphics.loop_at_exit [ Key_pressed ] exit_handler
+  let get_cam ctx = ctx
 end
 
 module Terminal : FRONTEND = struct
-  open Notty
   open Notty_unix
 
-  type ctx = Term.t
+  type ctx = Term.t * Render.camera
 
-  let init _ = Term.create ()
+  let init (gen_cam : int -> int -> Render.camera) =
+    let tty = Term.create () in
+    let width, height = Term.size tty in
+    let cam = gen_cam width height in
+    (tty, cam)
+
+  open Notty
 
   (* Luminance *)
   let lum r g b =
@@ -60,9 +70,10 @@ module Terminal : FRONTEND = struct
     in
     I.tabulate w (h - 1) f
 
-  let draw ctx img =
+  let draw (ctx, _) img =
     let size = Term.size ctx in
     Term.image ctx @@ render size img
 
   let finalise _ = Unix.sleepf 1.0
+  let get_cam (_, cam) = cam
 end

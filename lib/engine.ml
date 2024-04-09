@@ -18,12 +18,12 @@ module type ENGINE = sig
   val set_render_dims_y : y:int -> unit
 
   val render :
-    draw:(T.image -> unit) -> cam:Render.camera -> Torus.t list -> unit
+    cam:Render.camera -> draw:(T.image -> unit) -> Torus.t list -> unit
 end
 
 module Make (S : sig
   val render :
-    draw:(T.image -> unit) -> cam:Render.camera -> Torus.t list -> unit
+    cam:Render.camera -> draw:(T.image -> unit) -> Torus.t list -> unit
 end) =
 struct
   let set_render_dims_xy ~x ~y =
@@ -51,9 +51,9 @@ module Dt = Domainslib.Task
 
 let n_cores = 4
 
-module Pt = struct
-  let render ~draw ~(cam : Render.camera) tori =
-    let tile_width = cam.width / !n_tiles_x in
+module ParallelTile = Make (struct
+  let render ~cam ~draw tori =
+    let tile_width = cam.Render.width / !n_tiles_x in
     let tile_height = cam.height / !n_tiles_y in
     let img = Array.make_matrix cam.height cam.width T.background in
     let indices = indices !n_tiles_x !n_tiles_y in
@@ -70,11 +70,11 @@ module Pt = struct
     Dt.run pool (fun () -> Array.map f indices |> Array.iter (Dt.await pool));
     Dt.teardown_pool pool;
     draw img
-end
+end)
 
-module Pra = struct
-  let render ~draw ~(cam : Render.camera) tori =
-    let img = Array.make_matrix cam.height cam.width T.background in
+module ParallelRowAuto = Make (struct
+  let render ~cam ~draw tori =
+    let img = Array.make_matrix cam.Render.height cam.width T.background in
     let pool = Dt.setup_pool ~num_domains:(n_cores - 1) () in
     let f i =
       let x, y = (i mod cam.width, i / cam.width) in
@@ -86,11 +86,11 @@ module Pra = struct
         Dt.parallel_for ~start:0 ~finish:(cam.height * cam.width) ~body:f pool);
     Dt.teardown_pool pool;
     draw img
-end
+end)
 
-module Pca = struct
-  let render ~draw ~(cam : Render.camera) tori =
-    let img = Array.make_matrix cam.height cam.width T.background in
+module ParallelColumnAuto = Make (struct
+  let render ~cam ~draw tori =
+    let img = Array.make_matrix cam.Render.height cam.width T.background in
     let pool = Dt.setup_pool ~num_domains:(n_cores - 1) () in
     let f i =
       let x, y = (i / cam.height, i mod cam.height) in
@@ -102,11 +102,11 @@ module Pca = struct
         Dt.parallel_for ~start:0 ~finish:(cam.height * cam.width) ~body:f pool);
     Dt.teardown_pool pool;
     draw img
-end
+end)
 
-module St = struct
-  let render ~draw ~(cam : Render.camera) tori =
-    let tile_width = cam.width / !n_tiles_x in
+module SequentialTile = Make (struct
+  let render ~cam ~draw tori =
+    let tile_width = cam.Render.width / !n_tiles_x in
     let tile_height = cam.height / !n_tiles_y in
     let img = Array.make_matrix cam.height cam.width T.background in
     let indices = indices !n_tiles_x !n_tiles_y in
@@ -121,9 +121,4 @@ module St = struct
       draw img
     in
     Array.iter f indices
-end
-
-module ParallelTile = Make (Pt)
-module ParallelRowAuto = Make (Pra)
-module ParallelColumnAuto = Make (Pca)
-module SequentialTile = Make (St)
+end)
