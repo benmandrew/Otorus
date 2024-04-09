@@ -1,11 +1,11 @@
 open Otorus
-module Frontend = Frontend.Terminal
-module Engine = Engine.ParallelRowAuto
+(* module Frontend = Frontend.Terminal
+   module Engine = Engine.ParallelRowAuto *)
 
 let fps = 30
 
 let rotate i (tori : Torus.t list) =
-  let d = float_of_int i /. 7.5 in
+  let d = float_of_int i /. 10. in
   let f (t : Torus.t) =
     let trf = Torus.transform t in
     let trf = { trf with psi = trf.psi +. d } in
@@ -16,19 +16,23 @@ let rotate i (tori : Torus.t list) =
   in
   List.map f tori
 
-let set_dims () =
-  if Array.length Sys.argv > 1 then
-    Engine.set_render_dims_xy
-      ~x:(int_of_string Sys.argv.(1))
-      ~y:(int_of_string Sys.argv.(2))
-
-let () =
-  set_dims ();
+let main (module Frontend : Frontend.S) (module Engine : Engine.S) =
   let ctx = Frontend.init Config.gen_cam in
   let cam = Frontend.get_cam ctx in
   let draw = Frontend.draw ctx in
-  for i = 0 to 200 do
+  for i = 0 to 400 do
     Engine.render ~cam ~draw @@ rotate i Config.tori;
     Unix.sleepf (1. /. float_of_int fps)
   done;
   Frontend.finalise ctx
+
+open Cmdliner
+
+let cmd =
+  let doc =
+    "Render tori in parallel, drawing in a window or in the terminal."
+  in
+  let info = Cmd.info "otorus" ~doc in
+  Cmd.v info Term.(const main $ Frontend.cmdliner $ Engine.cmdliner)
+
+let () = exit @@ Cmd.eval cmd

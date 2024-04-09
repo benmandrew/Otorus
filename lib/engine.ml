@@ -13,7 +13,7 @@ let indices ?(random = false) width height =
     done;
   a
 
-module type ENGINE = sig
+module type S = sig
   val set_render_dims_xy : x:int -> y:int -> unit
   val set_render_dims_y : y:int -> unit
 
@@ -122,3 +122,33 @@ module SequentialTile = Make (struct
     in
     Array.iter f indices
 end)
+
+open Cmdliner
+
+let cmdliner =
+  let parallel_tile =
+    Arg.info ~doc:"Render by tiles in parallel." ~docv:"PARALLEL_TILE"
+      [ "parallel-tile" ]
+  in
+  let parallel_row_auto =
+    Arg.info ~doc:"Render by rows in parallel with automatic work scheduling."
+      ~docv:"PARALLEL_ROW_AUTO" [ "parallel-row-auto" ]
+  in
+  let parallel_column_auto =
+    Arg.info
+      ~doc:"Render by columns in parallel with automatic work scheduling."
+      ~docv:"PARALLEL_COLUMN_AUTO" [ "parallel-column-auto" ]
+  in
+  let sequential_tile =
+    Arg.info ~doc:"Render by tiles sequentially." ~docv:"SEQUENTIAL_TILE"
+      [ "sequential-tile" ]
+  in
+  Arg.value
+  @@ Arg.vflag
+       (module ParallelRowAuto : S)
+       [
+         ((module ParallelTile), parallel_tile);
+         ((module ParallelRowAuto), parallel_row_auto);
+         ((module ParallelColumnAuto), parallel_column_auto);
+         ((module SequentialTile), sequential_tile);
+       ]

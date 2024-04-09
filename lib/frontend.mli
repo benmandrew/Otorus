@@ -1,4 +1,4 @@
-module type FRONTEND = sig
+module type S = sig
   type ctx
 
   val init : (int -> int -> Render.camera) -> ctx
@@ -7,5 +7,7 @@ module type FRONTEND = sig
   val get_cam : ctx -> Render.camera
 end
 
-module Window : FRONTEND
-module Terminal : FRONTEND
+module Window : S
+module Terminal : S
+
+val cmdliner : (module S) Cmdliner.Term.t

@@ -1,5 +1,5 @@
 (library
  (name otorus)
- (libraries core graphics domainslib notty notty.unix)
+ (libraries core graphics domainslib notty notty.unix cmdliner)
  (ocamlopt_flags
   (:standard -O3)))

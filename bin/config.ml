@@ -8,7 +8,7 @@ let gen_cam width height =
     (* Render.width = 204;
        height = 53; *)
     pos = Vec.make_point 0.0 0.0 (-100.0);
-    field_of_view = 17.0;
+    field_of_view = 16.0;
   }
 
 (* Olympic Rings *)

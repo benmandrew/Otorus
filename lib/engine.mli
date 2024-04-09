@@ -1,4 +1,4 @@
-module type ENGINE = sig
+module type S = sig
   val set_render_dims_xy : x:int -> y:int -> unit
   val set_render_dims_y : y:int -> unit
 
@@ -6,7 +6,9 @@ module type ENGINE = sig
     cam:Render.camera -> draw:(T.image -> unit) -> Torus.t list -> unit
 end
 
-module ParallelTile : ENGINE
-module ParallelRowAuto : ENGINE
-module ParallelColumnAuto : ENGINE
-module SequentialTile : ENGINE
+module ParallelTile : S
+module ParallelRowAuto : S
+module ParallelColumnAuto : S
+module SequentialTile : S
+
+val cmdliner : (module S) Cmdliner.Term.t

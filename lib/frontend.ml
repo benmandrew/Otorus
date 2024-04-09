@@ -1,4 +1,4 @@
-module type FRONTEND = sig
+module type S = sig
   type ctx
 
   val init : (int -> int -> Render.camera) -> ctx
@@ -7,7 +7,7 @@ module type FRONTEND = sig
   val get_cam : ctx -> Render.camera
 end
 
-module Window : FRONTEND = struct
+module Window : S = struct
   type ctx = Render.camera
 
   let init gen_cam =
@@ -31,7 +31,7 @@ module Window : FRONTEND = struct
   let get_cam ctx = ctx
 end
 
-module Terminal : FRONTEND = struct
+module Terminal : S = struct
   open Notty_unix
 
   type ctx = Term.t * Render.camera
@@ -77,3 +77,17 @@ module Terminal : FRONTEND = struct
   let finalise _ = Unix.sleepf 1.0
   let get_cam (_, cam) = cam
 end
+
+open Cmdliner
+
+let cmdliner =
+  let lint_only =
+    Arg.info ~doc:"Draw into a window." ~docv:"WINDOW" [ "window" ]
+  in
+  let analyse_only =
+    Arg.info ~doc:"Draw into the terminal." ~docv:"TERMINAL" [ "terminal" ]
+  in
+  Arg.value
+  @@ Arg.vflag
+       (module Window : S)
+       [ ((module Window), lint_only); ((module Terminal), analyse_only) ]
