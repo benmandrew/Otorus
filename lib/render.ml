@@ -15,7 +15,10 @@ let compute_ray ~cam x y : Ray.t =
   let fwidth = float_of_int cam.width in
   let fheight = float_of_int cam.height in
   let vx = fx -. (fwidth /. 2.0) in
-  let vy = fy -. (fheight /. 2.0) in
+  (* Window rendering: pixels have equal width and height *)
+  (* let vy = fy -. (fheight /. 2.0) in *)
+  (* Terminal rendering: characters are approximately twice as high as wide *)
+  let vy = 2. *. (fy -. (fheight /. 2.0)) in
   let vz = fheight /. Float.tan (deg_to_rad *. cam.field_of_view /. 2.0) in
   let d = Vec.normalised (Vec.make_vec vx vy vz) in
   { o = cam.pos; d }

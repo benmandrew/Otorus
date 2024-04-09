@@ -5,10 +5,8 @@ let gen_cam width height =
   {
     Render.width;
     height;
-    (* Render.width = 204;
-       height = 53; *)
     pos = Vec.make_point 0.0 0.0 (-100.0);
-    field_of_view = 16.0;
+    field_of_view = 9.0;
   }
 
 (* Olympic Rings *)
@@ -76,7 +74,7 @@ let gen_cam width height =
 let tori =
   let open Transform in
   [
-    Torus.create ~maj_r:5.0 ~min_r:1.0
+    Torus.create ~maj_r:5.0 ~min_r:1.5
       {
         x = 3.5;
         y = 0.0;
@@ -86,7 +84,7 @@ let tori =
         phi = -.(Float.pi /. 16.0);
       }
       (Vec.make_vec 1.0 0.5 0.0);
-    Torus.create ~maj_r:5.5 ~min_r:0.8
+    Torus.create ~maj_r:5.5 ~min_r:1.2
       {
         x = -2.5;
         y = 0.0;

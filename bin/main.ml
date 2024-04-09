@@ -1,6 +1,4 @@
 open Otorus
-(* module Frontend = Frontend.Terminal
-   module Engine = Engine.ParallelRowAuto *)
 
 let fps = 30
 
@@ -20,7 +18,7 @@ let main (module Frontend : Frontend.S) (module Engine : Engine.S) =
   let ctx = Frontend.init Config.gen_cam in
   let cam = Frontend.get_cam ctx in
   let draw = Frontend.draw ctx in
-  for i = 0 to 400 do
+  for i = 0 to 200 do
     Engine.render ~cam ~draw @@ rotate i Config.tori;
     Unix.sleepf (1. /. float_of_int fps)
   done;

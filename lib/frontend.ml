@@ -74,7 +74,7 @@ module Terminal : S = struct
     let size = Term.size ctx in
     Term.image ctx @@ render size img
 
-  let finalise _ = Unix.sleepf 1.0
+  let finalise _ = Unix.sleepf 5.0
   let get_cam (_, cam) = cam
 end
 
